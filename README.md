@@ -41,33 +41,6 @@ TIC-TAC-TOE/
 
 ---
 
-## 🛠️ How to Push This Project to GitHub
-
-```bash
-cd "TIC TAC TOE"
-git init
-git add .
-git commit -m "Initial commit - Tic Tac Toe game"
-git branch -M main
-git remote add origin https://github.com/your-username/tic-tac-toe.git
-git push -u origin main
-```
-
----
-
-## 🌐 Deploy to GitHub Pages (Make it Live Online)
-
-1. Go to your GitHub repository.
-2. Click **Settings → Pages**.
-3. Select branch `main` and folder `/root`.
-4. Click **Save**.
-   ✅ Your website will be live at: `https://your-username.github.io/tic-tac-toe/`
-
----
-
-## 📸 Screenshot (Optional)
-
-*Add a screenshot of the game here once hosted.*
 
 ---
 
