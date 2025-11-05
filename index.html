@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tick-Tock Toe 🎉</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* =============================
+       STEP 2 — FRIENDLY, ACCESSIBLE STYLES
+       ============================= */
+    :root{
+      --bg: #fff9f2;            /* warm vanilla */
+      --card: #ffffff;          /* white card */
+      --ink: #2b2b2b;           /* dark text */
+      --soft: #f1efe8;          /* soft border */
+      --x: #ff6b6b;             /* playful red */
+      --o: #4dabf7;             /* friendly blue */
+      --win: #70e000;           /* happy green */
+      --accent: #ffd166;        /* sunny yellow */
+      --shadow: 0 10px 30px rgba(0,0,0,.08);
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 80% 0%, #fff1dc 0%, var(--bg) 60%),
+                  radial-gradient(1000px 500px at 0% 100%, #e9f7ff 0%, transparent 60%);
+      color: var(--ink);
+      display:grid;
+      place-items:center;
+      padding: 24px;
+    }
+
+    .app{
+      width:min(920px, 100%);
+      background: var(--card);
+      border:1px solid var(--soft);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(16px, 2.5vw, 28px);
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .title{
+      display:flex; align-items:center; gap:12px;
+    }
+    .logo{
+      height:48px; width:48px; border-radius:14px;
+      display:grid; place-items:center; font-size:26px; font-weight:900;
+      background: linear-gradient(135deg, #ffd166, #fca5a5, #93c5fd);
+      color:#1f2937; box-shadow: var(--shadow);
+    }
+    h1{ font-size: clamp(22px, 3.2vw, 34px); margin:0; letter-spacing:.5px; }
+    .sub{ font-weight:800; opacity:.8; font-size: clamp(12px, 1.8vw, 14px); }
+
+    .controls{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .btn{
+      border:none; border-radius:14px; padding:12px 16px; font-weight:900;
+      background:#f7f7f7; cursor:pointer; transition: transform .05s ease, box-shadow .2s ease;
+      box-shadow: 0 2px 0 #e5e5e5;
+    }
+    .btn:active{ transform: translateY(2px); box-shadow:none; }
+    .btn.primary{ background: var(--accent); }
+    .btn.toggle[aria-pressed="true"]{ outline: 3px solid #222; background:#fff; }
+
+    .board-wrap{
+      margin: 18px 0; display:grid; grid-template-columns: 1fr 300px; gap:18px;
+    }
+    @media (max-width: 850px){ .board-wrap{ grid-template-columns: 1fr; } }
+
+    .board{
+      background:linear-gradient(180deg, #ffffff, #fff9f2);
+      border-radius: var(--radius);
+      border:1px solid var(--soft);
+      padding: 16px; display:grid; place-items:center;
+    }
+    .grid{
+      display:grid; grid-template-columns: repeat(3, min(130px, 20vw));
+      gap: 14px; justify-content:center;
+    }
+    .cell{
+      width: min(130px, 20vw); height: min(130px, 20vw);
+      max-width: 170px; max-height:170px;
+      border-radius: 22px; border:3px solid #efefef; background: #fff;
+      font-size: clamp(42px, 7.5vw, 72px); font-weight:900;
+      display:grid; place-items:center; cursor:pointer;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+    }
+    .cell:focus{ outline: 3px solid #111; }
+    .cell:hover{ transform: translateY(-2px); background:#fffef7; }
+    .cell[disabled]{ cursor:not-allowed; opacity:.85; }
+
+    .score-card{
+      border:1px solid var(--soft); border-radius: var(--radius);
+      padding:16px; background: #fff; height:100%; display:flex; flex-direction:column; gap:12px;
+    }
+    .row{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .chip{ padding:8px 12px; border-radius:999px; font-weight:900; background:#f6f8fa; }
+    .x{ color: var(--x); } .o{ color: var(--o); }
+    .turn{ font-size: clamp(16px, 2.5vw, 20px); font-weight:900; }
+
+    .status{
+      display:flex; align-items:center; gap:10px; font-weight:900;
+      padding: 10px 12px; border-radius: 12px; background:#f7fbff; border:1px dashed #d7ecff;
+    }
+    .status.win{ background:#f7fff4; border-color:#d9ffd6; }
+
+    .footer{
+      margin-top:10px; font-size:12px; opacity:.8; text-align:center;
+    }
+
+    .celebrate{
+      animation: pop .35s ease-in-out; transform-origin:center;
+      filter: drop-shadow(0 6px 20px rgba(0,0,0,.15));
+    }
+    @keyframes pop{ 0%{ transform: scale(.6); } 100%{ transform: scale(1); } }
+
+    .winGlow{ box-shadow: 0 0 0 4px var(--win) inset, 0 0 20px rgba(112, 224, 0, .5); }
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Tic Tac Toe game">
+    <header>
+      <div class="title">
+        <div class="logo" aria-hidden="true">TT</div>
+        <div>
+          <h1>Tick‑Tock Toe <span aria-hidden="true">🎉</span></h1>
+          <div class="sub">Easy • Colorful • Kid‑friendly</div>
+        </div>
+      </div>
+      <div class="controls" aria-label="Game controls">
+        <button class="btn toggle" id="modePvP" aria-pressed="true">👫 2 Players</button>
+        <button class="btn toggle" id="modeBot" aria-pressed="false">🤖 vs Easy Bot</button>
+        <button class="btn primary" id="resetBtn">🔄 New Game</button>
+      </div>
+    </header>
+
+    <div class="board-wrap">
+      <section class="board" aria-live="polite">
+        <!-- =============================
+             STEP 1 — THE BOARD MARKUP
+             Nine buttons so kids can tap/click easily.
+             ============================= -->
+        <div class="grid" id="grid" role="grid" aria-label="3 by 3 tic tac toe board">
+          <button class="cell" data-i="0" role="gridcell" aria-label="cell 1"></button>
+          <button class="cell" data-i="1" role="gridcell" aria-label="cell 2"></button>
+          <button class="cell" data-i="2" role="gridcell" aria-label="cell 3"></button>
+          <button class="cell" data-i="3" role="gridcell" aria-label="cell 4"></button>
+          <button class="cell" data-i="4" role="gridcell" aria-label="cell 5"></button>
+          <button class="cell" data-i="5" role="gridcell" aria-label="cell 6"></button>
+          <button class="cell" data-i="6" role="gridcell" aria-label="cell 7"></button>
+          <button class="cell" data-i="7" role="gridcell" aria-label="cell 8"></button>
+          <button class="cell" data-i="8" role="gridcell" aria-label="cell 9"></button>
+        </div>
+      </section>
+
+      <aside class="score-card" aria-label="Scores and status">
+        <div class="row">
+          <div class="turn" id="turnText">Turn: <span class="x">X</span></div>
+          <div class="chip">Mode: <span id="modeText">👫</span></div>
+        </div>
+        <div class="row">
+          <div class="chip">Score <span class="x">X</span>: <span id="scoreX">0</span></div>
+          <div class="chip">Score <span class="o">O</span>: <span id="scoreO">0</span></div>
+          <div class="chip">Draws: <span id="scoreD">0</span></div>
+        </div>
+        <div class="status" id="status">Have fun! X goes first.</div>
+        <div class="footer">Tip: Press any empty square to play. Keyboard: 1‑9 keys work too.</div>
+      </aside>
+    </div>
+
+    <div class="footer">Made with ❤️ for little champs.</div>
+  </div>
+
+  <!-- =============================
+       STEP 3 — GAME LOGIC (No libraries)
+       ============================= -->
+  <script>
+    const grid = document.getElementById('grid');
+    const cells = Array.from(document.querySelectorAll('.cell'));
+    const statusEl = document.getElementById('status');
+    const turnText = document.getElementById('turnText');
+    const modeText = document.getElementById('modeText');
+    const scoreXEl = document.getElementById('scoreX');
+    const scoreOEl = document.getElementById('scoreO');
+    const scoreDEl = document.getElementById('scoreD');
+
+    const modePvPBtn = document.getElementById('modePvP');
+    const modeBotBtn = document.getElementById('modeBot');
+    const resetBtn = document.getElementById('resetBtn');
+
+    const WINS = [
+      [0,1,2], [3,4,5], [6,7,8], // rows
+      [0,3,6], [1,4,7], [2,5,8], // cols
+      [0,4,8], [2,4,6]           // diags
+    ];
+
+    let board, turn, locked, mode; // mode: 'PvP' | 'Bot'
+    const scores = JSON.parse(localStorage.getItem('ttt-scores')||'{"X":0,"O":0,"D":0}');
+    scoreXEl.textContent = scores.X; scoreOEl.textContent = scores.O; scoreDEl.textContent = scores.D;
+
+    function init(newMode){
+      board = Array(9).fill('');
+      turn = 'X';
+      locked = false;
+      if(newMode) mode = newMode;
+      updateUI();
+      cells.forEach(c=>{ c.textContent=''; c.disabled=false; c.classList.remove('winGlow'); });
+      announce(`Have fun! ${turn} goes first.`);
+    }
+
+    function updateUI(){
+      turnText.innerHTML = `Turn: <span class="${turn==='X'?'x':'o'}">${turn}</span>`;
+      modeText.textContent = mode==='Bot' ? '🤖' : '👫';
+      modePvPBtn.setAttribute('aria-pressed', mode==='PvP');
+      modeBotBtn.setAttribute('aria-pressed', mode==='Bot');
+    }
+
+    function announce(msg, win=false){
+      statusEl.textContent = msg;
+      statusEl.classList.toggle('win', !!win);
+    }
+
+    function setCell(i, player){
+      if(board[i] || locked) return false;
+      board[i] = player;
+      const el = cells[i];
+      el.textContent = player; // Big clear letters for kids
+      el.classList.add('celebrate');
+      setTimeout(()=>el.classList.remove('celebrate'), 200);
+      el.disabled = true;
+      return true;
+    }
+
+    function checkWinner(){
+      for(const [a,b,c] of WINS){
+        if(board[a] && board[a]===board[b] && board[a]===board[c]){
+          return {winner: board[a], line:[a,b,c]};
+        }
+      }
+      if(board.every(Boolean)) return {winner: 'D'}; // draw
+      return null;
+    }
+
+    function endGame(result){
+      locked = true;
+      if(result.winner==='D'){
+        scores.D++; scoreDEl.textContent = scores.D;
+        localStorage.setItem('ttt-scores', JSON.stringify(scores));
+        announce('It\'s a draw! 🤝');
+        return;
+      }
+      scores[result.winner]++; 
+      scoreXEl.textContent = scores.X; scoreOEl.textContent = scores.O;
+      localStorage.setItem('ttt-scores', JSON.stringify(scores));
+      result.line?.forEach(i=>cells[i].classList.add('winGlow'));
+      announce(`${result.winner} wins! 🏆`, true);
+    }
+
+    function nextTurn(){ turn = (turn==='X'?'O':'X'); updateUI(); }
+
+    // =============================
+    // STEP 4 — EASY BOT (random empty move)
+    // =============================
+    function botMove(){
+      if(mode!=='Bot' || locked || turn!=='O') return;
+      const empties = board.map((v,i)=>v?null:i).filter(v=>v!==null);
+      const pick = empties[Math.floor(Math.random()*empties.length)];
+      setTimeout(()=>{
+        if(setCell(pick, 'O')){
+          const res = checkWinner();
+          if(res) endGame(res); else { nextTurn(); }
+        }
+      }, 450);
+    }
+
+    // =============================
+    // STEP 5 — EVENT HANDLERS & RESET
+    // =============================
+    grid.addEventListener('click', (e)=>{
+      const cell = e.target.closest('.cell');
+      if(!cell) return;
+      const i = +cell.dataset.i;
+      if(setCell(i, turn)){
+        const res = checkWinner();
+        if(res){ endGame(res); }
+        else{ nextTurn(); botMove(); }
+      }
+    });
+
+    // keyboard support 1..9 mapping left-to-right, top-to-bottom
+    document.addEventListener('keydown', (e)=>{
+      if(e.key>='1' && e.key<='9'){
+        const idx = parseInt(e.key,10)-1; cells[idx]?.click();
+      }
+      if(e.key.toLowerCase()==='r') resetBtn.click();
+    });
+
+    resetBtn.addEventListener('click', ()=> init());
+
+    modePvPBtn.addEventListener('click', ()=>{ mode='PvP'; init('PvP'); });
+    modeBotBtn.addEventListener('click', ()=>{ mode='Bot'; init('Bot'); });
+
+    // =============================
+    // STEP 6 — BOOT
+    // =============================
+    mode = 'PvP';
+    init();
+  </script>
+</body>
+</html>
